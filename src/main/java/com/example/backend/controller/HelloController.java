@@ -18,4 +18,9 @@ public class HelloController {
         return "Application is running!";
     }
 
+    @GetMapping("/error")
+    public String error() {
+        return "404 Not Found";
+    }
+
 }
