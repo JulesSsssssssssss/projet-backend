@@ -40,6 +40,7 @@ CREATE TABLE cards (
     attack INTEGER NOT NULL,
     defense INTEGER NOT NULL,
     image_url VARCHAR(512),
+    description TEXT,
 
     CONSTRAINT fk_cards_rarity
         FOREIGN KEY (rarity_id)
@@ -47,36 +48,25 @@ CREATE TABLE cards (
         ON DELETE RESTRICT
 );
 
-INSERT INTO cards (name, rarity_id, attack, defense, image_url)
+INSERT INTO cards (name, rarity_id, attack, defense, image_url, description)
 VALUES
-  (
-    'Forest Guardian',
-    (SELECT id FROM rarity WHERE name = 'COMMON'),
-    40,
-    60,
-    'https://example.com/cards/forest-guardian.png'
-  ),
-  (
-    'Shadow Assassin',
-    (SELECT id FROM rarity WHERE name = 'RARE'),
-    75,
-    40,
-    'https://example.com/cards/shadow-assassin.png'
-  ),
-  (
-    'Water Mage',
-    (SELECT id FROM rarity WHERE name = 'EPIC'),
-    65,
-    50,
-    'https://example.com/cards/water-mage.png'
-  ),
-  (
-    'Fire Dragon',
-    (SELECT id FROM rarity WHERE name = 'LEGENDARY'),
-    90,
-    70,
-    'https://example.com/cards/fire-dragon.png'
-  );
+  -- COMMON cards (rarity_id = 1)
+  ('Goblin', 1, 50, 30, 'https://via.placeholder.com/150', 'Un goblin basique'),
+  ('Slime', 1, 40, 40, 'https://via.placeholder.com/150', 'Une créature gluante'),
+  ('Rat géant', 1, 45, 35, 'https://via.placeholder.com/150', 'Un rat de taille inhabituelle'),
+  ('Squelette', 1, 55, 25, 'https://via.placeholder.com/150', 'Un guerrier mort-vivant'),
+  -- RARE cards (rarity_id = 3)
+  ('Chevalier', 3, 100, 80, 'https://via.placeholder.com/150', 'Un noble chevalier'),
+  ('Mage', 3, 120, 60, 'https://via.placeholder.com/150', 'Un lanceur de sorts'),
+  ('Archer', 3, 110, 70, 'https://via.placeholder.com/150', 'Un tireur d''élite'),
+  -- EPIC cards (rarity_id = 4)
+  ('Dragon Jeune', 4, 200, 150, 'https://via.placeholder.com/150', 'Un dragon en apprentissage'),
+  ('Paladin', 4, 180, 180, 'https://via.placeholder.com/150', 'Un guerrier sacré'),
+  ('Sorcier', 4, 220, 130, 'https://via.placeholder.com/150', 'Un maître des arcanes'),
+  -- LEGENDARY cards (rarity_id = 5)
+  ('Dragon Ancien', 5, 400, 300, 'https://via.placeholder.com/150', 'Le plus puissant des dragons'),
+  ('Archmage', 5, 450, 250, 'https://via.placeholder.com/150', 'Maître suprême de la magie'),
+  ('Titan', 5, 500, 400, 'https://via.placeholder.com/150', 'Une force de la nature');
 
 
 CREATE TABLE user_cards (
