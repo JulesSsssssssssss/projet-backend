@@ -5,4 +5,6 @@ com\example\backend\controller\AuthController.class
 com\example\backend\BackendApplication.class
 com\example\backend\config\SecurityConfig.class
 com\example\backend\config\JwtAuthenticationFilter.class
+com\example\backend\controller\CardController.class
 com\example\backend\dto\LoginResponse.class
+com\example\backend\dto\CardResponse.class
