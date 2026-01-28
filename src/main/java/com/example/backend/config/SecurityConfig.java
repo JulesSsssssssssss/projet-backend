@@ -41,7 +41,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/hello", "/api/status", "/api/error", "/api/cards", "/api/gacha").permitAll()
+                .requestMatchers("/api/auth/**", "/api/hello", "/api/status", "/api/error", "/api/cards", "/api/cards/gacha").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()

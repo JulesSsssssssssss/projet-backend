@@ -12,6 +12,7 @@ brew services start postgresql@15
 ## Configuration de la base de données
 
 ### 1. Base de données créée
+
 ```bash
 createdb projet_backend
 ```
@@ -32,127 +33,191 @@ spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.open-in-view=false
 ```
 
+---
+
 ## Structure de la base de données
 
 ### Table `users`
 
-| Colonne  | Type         | Contraintes              |
-|----------|--------------|--------------------------|
-| id       | BIGSERIAL    | PRIMARY KEY              |
-| username | VARCHAR(255) | NOT NULL, UNIQUE         |
-| password | VARCHAR(255) | NOT NULL                 |
-| role     | VARCHAR(255) | NOT NULL                 |
-| enabled  | BOOLEAN      | NOT NULL, DEFAULT true   |
+| Colonne    | Type      | Contraintes                              |
+| ---------- | --------- | ---------------------------------------- |
+| id         | BIGSERIAL | PRIMARY KEY                              |
+| username   | VARCHAR   | NOT NULL, UNIQUE                         |
+| password   | VARCHAR   | NOT NULL                                 |
+| role       | VARCHAR   | NOT NULL                                 |
+| enabled    | BOOLEAN   | NOT NULL, DEFAULT true                   |
+| last_gacha | TIMESTAMP | NULLABLE – dernière utilisation du gacha |
+
+---
+
+### Table `rarity`
+
+| Colonne | Type      | Contraintes      |
+| ------- | --------- | ---------------- |
+| id      | BIGSERIAL | PRIMARY KEY      |
+| name    | VARCHAR   | NOT NULL, UNIQUE |
+
+**Valeurs initiales recommandées :**
+
+* COMMON
+* RARE
+* EPIC
+* LEGENDARY
+
+---
+
+### Table `cards`
+
+| Colonne   | Type      | Contraintes     |
+| --------- | --------- | --------------- |
+| id        | BIGSERIAL | PRIMARY KEY     |
+| name      | VARCHAR   | NOT NULL        |
+| rarity_id | BIGINT    | FK → rarity(id) |
+| attack    | INTEGER   | NOT NULL        |
+| defense   | INTEGER   | NOT NULL        |
+| image_url | VARCHAR   | NULLABLE        |
+
+---
+
+### Table `user_cards` (pivot)
+
+| Colonne     | Type      | Contraintes                    |
+| ----------- | --------- | ------------------------------ |
+| user_id     | BIGINT    | FK → users(id), PK (composite) |
+| card_id     | BIGINT    | FK → cards(id), PK (composite) |
+| obtained_at | TIMESTAMP | NOT NULL                       |
+
+Cette table représente les cartes possédées par les utilisateurs.
+
+---
 
 ## Entités JPA
 
 ### User.java
+
 ```java
 @Entity
 @Table(name = "users")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @Column(unique = true, nullable = false)
     private String username;
-    
+
     @Column(nullable = false)
     private String password;
-    
+
     @Column(nullable = false)
     private String role;
-    
-    private boolean enabled;
+
+    private boolean enabled = true;
+
+    @Column(name = "last_gacha")
+    private LocalDateTime lastGacha;
+
+    @ManyToMany
+    @JoinTable(
+        name = "user_cards",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "card_id")
+    )
+    private Set<Card> cards = new HashSet<>();
 }
 ```
 
-## Repository
+---
 
-### UserRepository.java
+### Card.java
+
 ```java
-@Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByUsername(String username);
-    boolean existsByUsername(String username);
+@Entity
+@Table(name = "cards")
+public class Card {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    private int attack;
+    private int defense;
+
+    private String imageUrl;
+
+    @ManyToOne
+    @JoinColumn(name = "rarity_id")
+    private Rarity rarity;
 }
 ```
 
-## Initialisation des données
+---
 
-Au démarrage de l'application, deux utilisateurs de test sont automatiquement créés :
+### Rarity.java
 
-| Username | Password    | Role       |
-|----------|-------------|------------|
-| admin    | password123 | ROLE_ADMIN |
-| user     | user123     | ROLE_USER  |
+```java
+@Entity
+@Table(name = "rarity")
+public class Rarity {
 
-Ces utilisateurs sont créés par `DatabaseInitializer.java` uniquement s'ils n'existent pas déjà.
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-## Authentification avec la base de données
-
-Le système d'authentification JWT utilise maintenant PostgreSQL pour stocker et récupérer les utilisateurs :
-
-1. `UserDetailsServiceImpl` charge les utilisateurs depuis la base de données
-2. Les mots de passe sont encodés avec BCrypt avant d'être stockés
-3. L'authentification vérifie les credentials contre la base de données
-4. Un token JWT est généré pour les utilisateurs authentifiés
-
-## Commandes utiles PostgreSQL
-
-### Démarrer/Arrêter le service
-```bash
-brew services start postgresql@15
-brew services stop postgresql@15
-brew services restart postgresql@15
+    @Column(unique = true, nullable = false)
+    private String name;
+}
 ```
 
-### Se connecter à la base de données
-```bash
-/opt/homebrew/opt/postgresql@15/bin/psql -d projet_backend
+---
+
+## Gacha Logic (Concept)
+
+* Lors de l'appel à `GET /api/cards/gacha` :
+
+  * Une carte aléatoire est tirée (pondérée par rareté plus tard)
+  * La carte est ajoutée à `user_cards`
+  * Le champ `users.last_gacha` est mis à jour avec `LocalDateTime.now()`
+
+Ce champ permet :
+
+* cooldown journalier
+* pity system
+* statistiques utilisateur
+
+---
+
+## Repository (exemples)
+
+```java
+public interface CardRepository extends JpaRepository<Card, Long> {}
+public interface RarityRepository extends JpaRepository<Rarity, Long> {
+    Optional<Rarity> findByName(String name);
+}
 ```
 
-### Commandes SQL utiles
+---
+
+## Notes importantes
+
+* `ddl-auto=update` créera automatiquement les nouvelles tables
+* Le pivot `user_cards` est géré par JPA
+* `last_gacha` est nullable pour les anciens utilisateurs
+
+---
+
+## Commandes SQL utiles
+
 ```sql
--- Lister toutes les tables
 \dt
-
--- Voir la structure de la table users
 \d users
-
--- Lister tous les utilisateurs
-SELECT * FROM users;
-
--- Supprimer tous les utilisateurs (attention !)
-TRUNCATE TABLE users;
+\d cards
+\d rarity
+\d user_cards
 ```
 
-## Migration depuis H2
-
-L'application utilisait précédemment H2 (base de données en mémoire). PostgreSQL offre :
-
-- ✅ **Persistance des données** : Les données survivent au redémarrage
-- ✅ **Production-ready** : PostgreSQL est adapté pour la production
-- ✅ **Performances** : Meilleure gestion des transactions
-- ✅ **Scalabilité** : Support de volumes de données importants
-
-## Troubleshooting
-
-### Port déjà utilisé
-Si le port 5432 est déjà utilisé :
-```bash
-lsof -ti:5432 | xargs kill -9
-brew services restart postgresql@15
-```
-
-### Réinitialiser la base de données
-```bash
-/opt/homebrew/opt/postgresql@15/bin/dropdb projet_backend
-/opt/homebrew/opt/postgresql@15/bin/createdb projet_backend
-```
-
-### Vérifier la connexion
-```bash
-/opt/homebrew/opt/postgresql@15/bin/psql -d projet_backend -c "SELECT version();"
-```
+---
