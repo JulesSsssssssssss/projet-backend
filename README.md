@@ -19,7 +19,77 @@ Application Spring Boot avec toutes les fonctionnalités principales.
 - Java 17 ou supérieur
 - Maven 3.6+
 
-## 🔧 Installation
+## ⚙️ Installation des outils nécessaires
+
+### 1. Installer Java (JDK)
+
+**Sur macOS (avec Homebrew) :**
+```bash
+# Installer Homebrew si ce n'est pas déjà fait
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Installer Java
+brew install openjdk@17
+
+# Lier Java pour le rendre accessible
+sudo ln -sfn /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
+```
+
+**Sur Windows :**
+1. Télécharger le JDK depuis [Oracle](https://www.oracle.com/java/technologies/downloads/) ou [Adoptium](https://adoptium.net/)
+2. Exécuter l'installateur
+3. Ajouter JAVA_HOME aux variables d'environnement
+
+**Sur Linux (Ubuntu/Debian) :**
+```bash
+sudo apt update
+sudo apt install openjdk-17-jdk
+```
+
+**Vérifier l'installation :**
+```bash
+java -version
+```
+
+### 2. Installer Maven
+
+**Sur macOS (avec Homebrew) :**
+```bash
+brew install maven
+```
+
+**Sur Windows :**
+1. Télécharger Maven depuis [apache.org](https://maven.apache.org/download.cgi)
+2. Extraire l'archive dans `C:\Program Files\Maven`
+3. Ajouter `C:\Program Files\Maven\bin` à la variable PATH
+
+**Sur Linux (Ubuntu/Debian) :**
+```bash
+sudo apt update
+sudo apt install maven
+```
+
+**Vérifier l'installation :**
+```bash
+mvn -version
+```
+
+### 3. Installer Git (si nécessaire)
+
+**Sur macOS :**
+```bash
+brew install git
+```
+
+**Sur Windows :**
+Télécharger depuis [git-scm.com](https://git-scm.com/download/win)
+
+**Sur Linux :**
+```bash
+sudo apt install git
+```
+
+## 🔧 Installation du projet
 
 ```bash
 # Cloner le projet
