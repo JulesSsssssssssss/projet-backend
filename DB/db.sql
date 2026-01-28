@@ -1,10 +1,13 @@
 SET session_replication_role = 'replica';
 
+-- Drop existing tables if they exist
+DROP TABLE IF EXISTS trade_requests;
 DROP TABLE IF EXISTS user_cards;
 DROP TABLE IF EXISTS cards;
 DROP TABLE IF EXISTS rarity;
 DROP TABLE IF EXISTS users;
 
+-- Users table
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     username VARCHAR(255) NOT NULL UNIQUE,
@@ -19,7 +22,7 @@ VALUES
   ('admin', '', 'ROLE_ADMIN', true),
   ('user', '', 'ROLE_USER', true);
 
-
+-- Rarity table
 CREATE TABLE rarity (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE
@@ -31,7 +34,7 @@ INSERT INTO rarity (name) VALUES
   ('EPIC'),
   ('LEGENDARY');
 
-
+-- Cards table
 CREATE TABLE cards (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -40,7 +43,6 @@ CREATE TABLE cards (
     defense INTEGER NOT NULL,
     image_url VARCHAR(512),
     description TEXT,
-
     CONSTRAINT fk_cards_rarity
         FOREIGN KEY (rarity_id)
         REFERENCES rarity(id)
@@ -67,21 +69,45 @@ VALUES
   ('Archmage', 5, 450, 250, 'https://via.placeholder.com/150', 'Maître suprême de la magie'),
   ('Titan', 5, 500, 400, 'https://via.placeholder.com/150', 'Une force de la nature');
 
-
+-- User <-> Card pivot table
 CREATE TABLE user_cards (
     user_id BIGINT NOT NULL,
     card_id BIGINT NOT NULL,
     obtained_at TIMESTAMP NOT NULL DEFAULT NOW(),
-
     PRIMARY KEY (user_id, card_id),
-
     CONSTRAINT fk_user_cards_user
         FOREIGN KEY (user_id)
         REFERENCES users(id)
         ON DELETE CASCADE,
-
     CONSTRAINT fk_user_cards_card
         FOREIGN KEY (card_id)
+        REFERENCES cards(id)
+        ON DELETE CASCADE
+);
+
+-- Trade Requests table
+CREATE TABLE trade_requests (
+    id BIGSERIAL PRIMARY KEY,
+    from_user_id BIGINT NOT NULL,
+    to_user_id BIGINT NOT NULL,
+    offered_card_id BIGINT NOT NULL,
+    requested_card_id BIGINT NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT fk_trade_from_user
+        FOREIGN KEY (from_user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_trade_to_user
+        FOREIGN KEY (to_user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_trade_offered_card
+        FOREIGN KEY (offered_card_id)
+        REFERENCES cards(id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_trade_requested_card
+        FOREIGN KEY (requested_card_id)
         REFERENCES cards(id)
         ON DELETE CASCADE
 );
