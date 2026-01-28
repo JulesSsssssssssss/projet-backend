@@ -1,3 +1,8 @@
+/Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/service/JwtService.java
 /Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/config/SecurityConfig.java
+/Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/controller/AuthController.java
+/Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/dto/LoginRequest.java
+/Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/dto/LoginResponse.java
+/Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/config/JwtAuthenticationFilter.java
 /Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/controller/HelloController.java
 /Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/BackendApplication.java
