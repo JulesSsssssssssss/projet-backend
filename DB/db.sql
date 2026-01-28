@@ -27,7 +27,6 @@ CREATE TABLE rarity (
 
 INSERT INTO rarity (name) VALUES
   ('COMMON'),
-  ('UNCOMMON'),
   ('RARE'),
   ('EPIC'),
   ('LEGENDARY');

@@ -5,13 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public interface CardRepository extends JpaRepository<Card, Long> {
-    
-    List<Card> findByRarity(String rarity);
-    
-    @Query(value = "SELECT * FROM cards ORDER BY RANDOM() LIMIT 1", nativeQuery = true)
-    Card findRandomCard();
+
+    @Query(value = "SELECT * FROM cards c JOIN rarity r ON c.rarity_id = r.id WHERE r.name = :name ORDER BY RANDOM() LIMIT 1", nativeQuery = true)
+    Card findRandomCardByRarityName(String name);
 }

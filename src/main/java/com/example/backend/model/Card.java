@@ -1,9 +1,7 @@
 package com.example.backend.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "cards")
@@ -11,25 +9,26 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Card {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @Column(nullable = false)
     private String name;
-    
-    @Column(nullable = false)
-    private String rarity; // COMMON, RARE, EPIC, LEGENDARY
-    
+
+    @ManyToOne
+    @JoinColumn(name = "rarity_id", nullable = false)
+    private Rarity rarity;
+
     @Column(nullable = false)
     private Integer attack;
-    
+
     @Column(nullable = false)
     private Integer defense;
-    
+
     private String imageUrl;
-    
+
     @Column(columnDefinition = "TEXT")
     private String description;
 }

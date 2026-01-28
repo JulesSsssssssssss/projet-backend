@@ -22,13 +22,4 @@ public class CardController {
     public ResponseEntity<List<CardResponse>> getAllCards() {
         return ResponseEntity.ok(cards);
     }
-
-    @GetMapping("/gacha")
-    public ResponseEntity<CardResponse> gacha() {
-
-        Random random = new Random();
-        CardResponse randomCard = cards.get(random.nextInt(cards.size()));
-
-        return ResponseEntity.ok(randomCard);
-    }
 }

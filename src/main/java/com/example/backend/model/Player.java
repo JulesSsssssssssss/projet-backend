@@ -1,35 +1,44 @@
 package com.example.backend.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "players")
+@Table(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Player {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @Column(nullable = false, unique = true)
+
+    @Column(unique = true, nullable = false)
     private String username;
-    
+
     @Column(nullable = false)
-    private Integer points = 1000; // Points pour gacha
-    
+    private String password;
+
+    @Column(nullable = false)
+    private String role;
+
+    private boolean enabled = true;
+
+    private LocalDateTime lastGacha;
+
     @ManyToMany
     @JoinTable(
-        name = "player_cards",
-        joinColumns = @JoinColumn(name = "player_id"),
+        name = "user_cards",
+        joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "card_id")
     )
-    private List<Card> cards = new ArrayList<>();
+    private Set<Card> cards = new HashSet<>();
+
+    @Transient
+    private Integer points = 1000; // default for demo; can be replaced with DB column later
 }
