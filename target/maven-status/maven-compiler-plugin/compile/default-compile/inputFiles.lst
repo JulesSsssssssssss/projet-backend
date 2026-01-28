@@ -1,8 +1,12 @@
-C:\laragon\www\projet-backend\src\main\java\com\example\backend\dto\LoginResponse.java
-C:\laragon\www\projet-backend\src\main\java\com\example\backend\config\JwtAuthenticationFilter.java
-C:\laragon\www\projet-backend\src\main\java\com\example\backend\service\JwtService.java
-C:\laragon\www\projet-backend\src\main\java\com\example\backend\controller\AuthController.java
-C:\laragon\www\projet-backend\src\main\java\com\example\backend\controller\HelloController.java
-C:\laragon\www\projet-backend\src\main\java\com\example\backend\BackendApplication.java
-C:\laragon\www\projet-backend\src\main\java\com\example\backend\dto\LoginRequest.java
-C:\laragon\www\projet-backend\src\main\java\com\example\backend\config\SecurityConfig.java
+/Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/service/JwtService.java
+/Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/config/SecurityConfig.java
+/Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/controller/AuthController.java
+/Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/dto/LoginRequest.java
+/Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/dto/LoginResponse.java
+/Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/config/JwtAuthenticationFilter.java
+/Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/entity/User.java
+/Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/controller/HelloController.java
+/Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/service/UserDetailsServiceImpl.java
+/Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/BackendApplication.java
+/Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/repository/UserRepository.java
+/Users/julesruberti/Documents/Projet Backend/src/main/java/com/example/backend/config/DatabaseInitializer.java
