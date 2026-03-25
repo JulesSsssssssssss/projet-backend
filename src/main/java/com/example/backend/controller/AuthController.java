@@ -24,6 +24,12 @@ public class AuthController {
     private final UserDetailsService userDetailsService;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
     public AuthController(AuthenticationManager authenticationManager, 
                          JwtService jwtService, 
                          UserDetailsService userDetailsService) {
@@ -61,6 +67,29 @@ public class AuthController {
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new LoginResponse(null, "Bearer", null, "Erreur lors de la connexion"));
         }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+        // adapt method names if your repo uses different signatures
+        if (userRepository.existsByUsername(request.getUsername())) {
+            return ResponseEntity.badRequest().body(new LoginResponse("", "Bearer", "", "Nom d'utilisateur déjà utilisé"));
+        }
+
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setEmail(request.getEmail()); // remove if your User has no email
+        userRepository.save(user);
+
+        return ResponseEntity.ok(new LoginResponse("", "Bearer", request.getUsername(), "Inscription réussie"));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<LoginResponse> logout() {
+        // For stateless JWT, server can't "delete" token -> advise client to drop token.
+        // Here we return an empty token response to signal logout.
+        return ResponseEntity.ok(new LoginResponse("", "Bearer", "", "Déconnecté"));
     }
 
     @GetMapping("/test")
