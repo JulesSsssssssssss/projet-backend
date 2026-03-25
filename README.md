@@ -98,6 +98,33 @@ cd projet-backend
 
 # Compiler le projet
 mvn clean install
+
+## 📚 Lancer la documentation
+
+La documentation est créée avec MkDocs. Vous pouvez la consulter de deux façons :
+
+### Option 1 : Voir la documentation en ligne
+La documentation a été déployée sur GitHub Pages et est accessible à l'adresse suivante :
+https://JulesSsssssssssss.github.io/projet-backend/
+
+### Option 2 : Prévisualiser la documentation localement
+
+1. **Installer les dépendances MkDocs :**
+```bash
+pip install mkdocs
+pip install mkdocs-material
+```
+
+2. **Lancer le serveur local :**
+```bash
+python -m mkdocs serve
+```
+
+3. **Accéder à la documentation :**
+Ouvrez votre navigateur et allez à l'adresse :
+http://localhost:8000
+
+Le serveur se recharge automatiquement si vous modifiez les fichiers de documentation.
 ```
 
 ## ▶️ Lancement
