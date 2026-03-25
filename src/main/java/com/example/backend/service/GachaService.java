@@ -11,9 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -83,6 +82,16 @@ public class GachaService {
                     newUser.setEnabled(true);
                     return userRepository.save(newUser);
                 });
+    }
+
+    /**
+     * Return all cards owned by the given user.
+     */
+    public List<Card> getInventory(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+
+        return new ArrayList<>(user.getCards());
     }
 
     /**

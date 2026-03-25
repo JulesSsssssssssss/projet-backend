@@ -40,7 +40,7 @@ public class User {
      * Cards owned by the user.
      * Many-to-Many relationship via 'user_cards' pivot table.
      */
-    @ManyToMany
+    @ManyToMany(fetch = jakarta.persistence.FetchType.EAGER)
     @JoinTable(
         name = "user_cards",
         joinColumns = @JoinColumn(name = "user_id"),
