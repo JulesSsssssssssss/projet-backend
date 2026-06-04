@@ -1,201 +1,226 @@
-# Projet Backend Spring Boot
+# Projet Backend — Card Game
 
-Application Spring Boot avec toutes les fonctionnalités principales.
+Application Spring Boot 3.4 · Java 21 · PostgreSQL · JWT
 
-## 🚀 Fonctionnalités installées
+Un backend de jeu de cartes avec système gacha, inventaire et échanges entre joueurs, accompagné d'un mini front-end vanilla JS servi directement par Spring Boot.
 
-- **Spring Boot Web** - Création d'API REST
-- **Spring Boot Data JPA** - Gestion de la persistance
-- **Spring Boot Security** - Sécurité de l'application
-- **Spring Boot Validation** - Validation des données
-- **Spring Boot Actuator** - Monitoring et métriques
-- **H2 Database** - Base de données en mémoire
-- **PostgreSQL** - Driver pour PostgreSQL
-- **Lombok** - Réduction du code boilerplate
-- **DevTools** - Rechargement automatique en développement
+---
 
-## 📋 Prérequis
+## Prérequis
 
-- Java 17 ou supérieur
-- Maven 3.6+
+| Outil | Version minimale |
+|-------|-----------------|
+| Java (JDK) | 21 |
+| Maven | 3.6+ |
+| PostgreSQL | 14+ |
 
-## ⚙️ Installation des outils nécessaires
+---
 
-### 1. Installer Java (JDK)
+## Installation
 
-**Sur macOS (avec Homebrew) :**
+### 1. Java 21
+
+**macOS**
 ```bash
-# Installer Homebrew si ce n'est pas déjà fait
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Installer Java
-brew install openjdk@17
-
-# Lier Java pour le rendre accessible
-sudo ln -sfn /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
+brew install openjdk@21
+export JAVA_HOME=/opt/homebrew/opt/openjdk@21
+export PATH="$JAVA_HOME/bin:$PATH"
 ```
 
-**Sur Windows :**
-1. Télécharger le JDK depuis [Oracle](https://www.oracle.com/java/technologies/downloads/) ou [Adoptium](https://adoptium.net/)
-2. Exécuter l'installateur
-3. Ajouter JAVA_HOME aux variables d'environnement
+> Si votre JDK par défaut est plus récent (22+), Maven doit impérativement pointer sur Java 21
+> car Lombok (utilisé dans le projet) n'est pas encore compatible avec les versions supérieures.
+> Ajoutez les deux lignes `export` à votre `~/.zshrc` pour les rendre permanentes.
 
-**Sur Linux (Ubuntu/Debian) :**
+**Linux (Ubuntu/Debian)**
 ```bash
-sudo apt update
-sudo apt install openjdk-17-jdk
+sudo apt update && sudo apt install openjdk-21-jdk
 ```
 
-**Vérifier l'installation :**
-```bash
-java -version
-```
+**Windows**
+Télécharger sur [Adoptium](https://adoptium.net/) — choisir **Temurin 21 LTS**.
 
-### 2. Installer Maven
+### 2. Maven
 
-**Sur macOS (avec Homebrew) :**
+**macOS**
 ```bash
 brew install maven
 ```
 
-**Sur Windows :**
-1. Télécharger Maven depuis [apache.org](https://maven.apache.org/download.cgi)
-2. Extraire l'archive dans `C:\Program Files\Maven`
-3. Ajouter `C:\Program Files\Maven\bin` à la variable PATH
-
-**Sur Linux (Ubuntu/Debian) :**
+**Linux**
 ```bash
-sudo apt update
 sudo apt install maven
 ```
 
-**Vérifier l'installation :**
+**Windows** — télécharger sur [maven.apache.org](https://maven.apache.org/download.cgi) et ajouter `bin/` au PATH.
+
+### 3. PostgreSQL
+
+**macOS**
 ```bash
-mvn -version
+brew install postgresql@15
+brew services start postgresql@15
 ```
 
-### 3. Installer Git (si nécessaire)
-
-**Sur macOS :**
+**Linux**
 ```bash
-brew install git
+sudo apt install postgresql
+sudo systemctl start postgresql
 ```
 
-**Sur Windows :**
-Télécharger depuis [git-scm.com](https://git-scm.com/download/win)
-
-**Sur Linux :**
+Créer la base de données :
 ```bash
-sudo apt install git
+psql -U postgres
+```
+```sql
+CREATE DATABASE projet_backend;
+CREATE USER julesruberti WITH PASSWORD '';
+GRANT ALL PRIVILEGES ON DATABASE projet_backend TO julesruberti;
+\q
 ```
 
-## 🔧 Installation du projet
+> Le nom d'utilisateur et le mot de passe sont configurables dans `src/main/resources/application.properties`.
+
+---
+
+## Lancer le projet
 
 ```bash
-# Cloner le projet
+# 1. Cloner
 git clone https://github.com/JulesSsssssssssss/projet-backend.git
 cd projet-backend
 
-# Compiler le projet
-mvn clean install
+# 2. S'assurer d'utiliser Java 21
+export JAVA_HOME=/opt/homebrew/opt/openjdk@21   # macOS uniquement
+export PATH="$JAVA_HOME/bin:$PATH"
 
-## 📚 Lancer la documentation
+# 3. Compiler
+mvn clean package -DskipTests
 
-La documentation est créée avec MkDocs. Vous pouvez la consulter de deux façons :
-
-### Option 1 : Voir la documentation en ligne
-La documentation a été déployée sur GitHub Pages et est accessible à l'adresse suivante :
-https://JulesSsssssssssss.github.io/projet-backend/
-
-### Option 2 : Prévisualiser la documentation localement
-
-1. **Installer les dépendances MkDocs :**
-```bash
-pip install mkdocs
-pip install mkdocs-material
+# 4. Démarrer
+java -jar target/projet-backend-1.0.0.jar
 ```
 
-2. **Lancer le serveur local :**
-```bash
-python -m mkdocs serve
+L'application démarre sur **http://localhost:8080**
+
+Le front-end est directement accessible à cette adresse — aucun serveur séparé n'est nécessaire.
+
+---
+
+## Front-end
+
+Accéder à **http://localhost:8080** dans un navigateur.
+
+| Vue | Description |
+|-----|-------------|
+| Connexion / Inscription | Authentification JWT |
+| Dashboard | Points du joueur + bouton Pull (100 pts / tirage) |
+| Inventaire | Grille de toutes les cartes possédées |
+| Échanges | Proposer et accepter des échanges entre joueurs |
+
+---
+
+## API
+
+### Authentification — `/api/auth`
+
+```
+POST  /api/auth/register   Créer un compte
+POST  /api/auth/login      Connexion → retourne un token JWT
+POST  /api/auth/logout     Déconnexion (stateless)
 ```
 
-3. **Accéder à la documentation :**
-Ouvrez votre navigateur et allez à l'adresse :
-http://localhost:8000
+### Cartes — `/api/cards`
 
-Le serveur se recharge automatiquement si vous modifiez les fichiers de documentation.
+```
+GET   /api/cards            Liste toutes les cartes disponibles  (public)
+GET   /api/cards/inventory  Inventaire de l'utilisateur connecté (auth requise)
 ```
 
-## ▶️ Lancement
+### Gacha — `/api/gacha`
 
-```bash
-# Lancer l'application
-mvn spring-boot:run
+```
+POST  /api/gacha            Tirer une carte (coûte 100 pts)      (auth requise)
+GET   /api/gacha/points     Points actuels du joueur             (auth requise)
 ```
 
-L'application démarre sur le port **8080**.
+### Échanges — `/api/trades`
 
-## 🧪 Tester les endpoints
-
-```bash
-# Endpoint Hello World
-curl http://localhost:8080/api/hello
-
-# Endpoint Status
-curl http://localhost:8080/api/status
-
-# Console H2 Database
-http://localhost:8080/h2-console
-
-# Actuator Health
-curl http://localhost:8080/actuator/health
+```
+POST  /api/trades/propose          Proposer un échange           (auth requise)
+GET   /api/trades/pending          Échanges en attente           (auth requise)
+POST  /api/trades/accept/{tradeId} Accepter un échange           (auth requise)
 ```
 
-## 📁 Structure du projet
+Les routes protégées nécessitent le header :
+```
+Authorization: Bearer <token>
+```
+
+---
+
+## Structure du projet
 
 ```
 projet-backend/
-├── src/
-│   ├── main/
-│   │   ├── java/com/example/backend/
-│   │   │   ├── BackendApplication.java
-│   │   │   ├── controller/
-│   │   │   │   └── HelloController.java
-│   │   │   └── config/
-│   │   │       └── SecurityConfig.java
-│   │   └── resources/
-│   │       └── application.properties
-│   └── test/
-│       └── java/
-├── pom.xml
-└── README.md
+├── src/main/
+│   ├── java/com/example/backend/
+│   │   ├── config/
+│   │   │   ├── SecurityConfig.java          Configuration Spring Security + JWT
+│   │   │   ├── JwtAuthenticationFilter.java Filtre de validation du token
+│   │   │   └── DatabaseInitializer.java     Données initiales (raretés, cartes)
+│   │   ├── controller/
+│   │   │   ├── AuthController.java
+│   │   │   ├── CardController.java
+│   │   │   ├── GachaController.java
+│   │   │   └── TradeController.java
+│   │   ├── service/
+│   │   │   ├── GachaService.java            Logique de tirage pondéré
+│   │   │   ├── TradeService.java
+│   │   │   ├── JwtService.java
+│   │   │   └── UserDetailsServiceImpl.java
+│   │   ├── entity/   User
+│   │   ├── model/    Card, Rarity, TradeRequest, Player
+│   │   ├── dto/      LoginRequest/Response, RegisterRequest, CardResponse, GachaResponse
+│   │   └── repository/
+│   └── resources/
+│       ├── application.properties
+│       └── static/                          Front-end servi par Spring Boot
+│           ├── index.html
+│           ├── style.css
+│           └── app.js
+└── pom.xml
 ```
 
-## 🔐 Configuration de sécurité
+---
 
-La sécurité Spring est configurée pour autoriser tous les endpoints en mode développement. 
-**Important:** Mettez à jour la configuration de sécurité avant de déployer en production.
+## Configuration
 
-## 💾 Base de données
+Fichier : `src/main/resources/application.properties`
 
-L'application utilise H2 en mémoire par défaut. Configuration :
-- URL: `jdbc:h2:mem:testdb`
-- Username: `sa`
-- Password: *(vide)*
-- Console H2: http://localhost:8080/h2-console
+```properties
+server.port=8080
 
-## 📊 Monitoring
+spring.datasource.url=jdbc:postgresql://localhost:5432/projet_backend
+spring.datasource.username=<utilisateur>
+spring.datasource.password=<mot_de_passe>
 
-Actuator expose les endpoints suivants :
-- `/actuator/health` - Santé de l'application
-- `/actuator/info` - Informations sur l'application
-- `/actuator/metrics` - Métriques
+jwt.secret=<clé_secrète_longue>
+jwt.expiration=86400000   # 24h en ms
+```
 
-## 🛠️ Configuration
+> En production, ne jamais stocker la clé JWT dans ce fichier.
+> Utiliser une variable d'environnement : `JWT_SECRET=...`
 
-Modifiez `src/main/resources/application.properties` pour personnaliser :
-- Port du serveur
-- Configuration de la base de données
-- Niveaux de logs
-- Configuration JPA
+---
+
+## Documentation
+
+La documentation technique est disponible sur GitHub Pages :
+**https://JulesSsssssssssss.github.io/projet-backend/**
+
+Pour la prévisualiser localement :
+```bash
+pip install mkdocs mkdocs-material
+mkdocs serve
+# → http://localhost:8000
+```
