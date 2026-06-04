@@ -2,7 +2,11 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.LoginRequest;
 import com.example.backend.dto.LoginResponse;
+import com.example.backend.dto.RegisterRequest;
+import com.example.backend.entity.User;
+import com.example.backend.repository.UserRepository;
 import com.example.backend.service.JwtService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
