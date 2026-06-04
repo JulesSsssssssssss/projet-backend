@@ -42,7 +42,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 // Static front-end resources
-                .requestMatchers("/", "/index.html", "/style.css", "/app.js", "/favicon.ico").permitAll()
+                .requestMatchers("/", "/index.html", "/style.css", "/app.js", "/favicon.ico", "/error").permitAll()
                 // Public API endpoints
                 .requestMatchers("/api/auth/**", "/api/hello", "/api/status", "/api/error", "/api/cards", "/api/cards/gacha").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()

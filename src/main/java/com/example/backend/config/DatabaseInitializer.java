@@ -16,6 +16,39 @@ import java.util.List;
 @Configuration
 public class DatabaseInitializer {
 
+    private static User ensureUser(UserRepository userRepository,
+                                  PasswordEncoder passwordEncoder,
+                                  String username,
+                                  String rawPassword,
+                                  String role) {
+        User user = userRepository.findByUsername(username).orElseGet(() -> {
+            User u = new User();
+            u.setUsername(username);
+            return u;
+        });
+
+        boolean changed = false;
+
+        if (user.getPassword() == null || user.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(rawPassword));
+            changed = true;
+        }
+        if (user.getRole() == null || user.getRole().isBlank()) {
+            user.setRole(role);
+            changed = true;
+        }
+        if (!user.isEnabled()) {
+            user.setEnabled(true);
+            changed = true;
+        }
+
+        if (user.getId() == null || changed) {
+            user = userRepository.save(user);
+        }
+
+        return user;
+    }
+
     @Bean
     public CommandLineRunner initDatabase(UserRepository userRepository,
                                           PasswordEncoder passwordEncoder,
@@ -24,26 +57,8 @@ public class DatabaseInitializer {
         return args -> {
 
             // ----- USERS -----
-            if (!userRepository.existsByUsername("admin")) {
-                User admin = new User();
-                admin.setUsername("admin");
-                admin.setPassword(passwordEncoder.encode("password123"));
-                admin.setRole("ROLE_ADMIN");
-                admin.setEnabled(true);
-                userRepository.save(admin);
-            }
-
-            User user;
-            if (!userRepository.existsByUsername("user")) {
-                user = new User();
-                user.setUsername("user");
-                user.setPassword(passwordEncoder.encode("user123"));
-                user.setRole("ROLE_USER");
-                user.setEnabled(true);
-                userRepository.save(user);
-            } else {
-                user = userRepository.findByUsername("user").orElseThrow();
-            }
+            ensureUser(userRepository, passwordEncoder, "admin", "password123", "ROLE_ADMIN");
+            User user = ensureUser(userRepository, passwordEncoder, "user", "user123", "ROLE_USER");
 
             // ----- RARITIES -----
             // id order matters based on your SQL
