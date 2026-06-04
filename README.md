@@ -10,7 +10,7 @@ Un backend de jeu de cartes avec système gacha, inventaire et échanges entre j
 
 | Outil | Version minimale |
 |-------|-----------------|
-| Java (JDK) | 21 |
+| Java (JDK) | 21+ (Java 25 supporté) |
 | Maven | 3.6+ |
 | PostgreSQL | 14+ |
 
@@ -18,18 +18,12 @@ Un backend de jeu de cartes avec système gacha, inventaire et échanges entre j
 
 ## Installation
 
-### 1. Java 21
+### 1. Java
 
 **macOS**
 ```bash
-brew install openjdk@21
-export JAVA_HOME=/opt/homebrew/opt/openjdk@21
-export PATH="$JAVA_HOME/bin:$PATH"
+brew install openjdk@21   # ou une version supérieure
 ```
-
-> Si votre JDK par défaut est plus récent (22+), Maven doit impérativement pointer sur Java 21
-> car Lombok (utilisé dans le projet) n'est pas encore compatible avec les versions supérieures.
-> Ajoutez les deux lignes `export` à votre `~/.zshrc` pour les rendre permanentes.
 
 **Linux (Ubuntu/Debian)**
 ```bash
@@ -37,7 +31,7 @@ sudo apt update && sudo apt install openjdk-21-jdk
 ```
 
 **Windows**
-Télécharger sur [Adoptium](https://adoptium.net/) — choisir **Temurin 21 LTS**.
+Télécharger sur [Adoptium](https://adoptium.net/) — choisir **Temurin 21 LTS** ou supérieur.
 
 ### 2. Maven
 
@@ -89,14 +83,10 @@ GRANT ALL PRIVILEGES ON DATABASE projet_backend TO julesruberti;
 git clone https://github.com/JulesSsssssssssss/projet-backend.git
 cd projet-backend
 
-# 2. S'assurer d'utiliser Java 21
-export JAVA_HOME=/opt/homebrew/opt/openjdk@21   # macOS uniquement
-export PATH="$JAVA_HOME/bin:$PATH"
-
-# 3. Compiler
+# 2. Compiler
 mvn clean package -DskipTests
 
-# 4. Démarrer
+# 3. Démarrer
 java -jar target/projet-backend-1.0.0.jar
 ```
 
