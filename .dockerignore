@@ -1,0 +1,15 @@
+target/
+.m2/
+.git/
+.gitignore
+.idea/
+.vscode/
+node_modules/
+**/node_modules/
+*.log
+*.md
+.mvn/
+settings.xml
+*.iml
+out/
+!.dockerignore

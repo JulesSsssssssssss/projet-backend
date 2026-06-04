@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: projet_backend
+      POSTGRES_USER: julesruberti
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./DB/db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: projet-backend:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/projet_backend
+      SPRING_DATASOURCE_USERNAME: julesruberti
+      SPRING_DATASOURCE_PASSWORD: postgres
+
+volumes:
+  db-data:
