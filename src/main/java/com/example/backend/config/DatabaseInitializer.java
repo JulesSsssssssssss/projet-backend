@@ -62,7 +62,7 @@ public class DatabaseInitializer {
 
             // ----- RARITIES -----
             // id order matters based on your SQL
-            String[] rarityNames = {"COMMON", "UNUSED", "RARE", "EPIC", "LEGENDARY"};
+            String[] rarityNames = {"COMMON", "RARE", "EPIC", "LEGENDARY"};
             for (String name : rarityNames) {
                 if (rarityRepository.findByName(name).isEmpty() && !name.equals("UNUSED")) {
                     rarityRepository.save(new Rarity(null, name));
