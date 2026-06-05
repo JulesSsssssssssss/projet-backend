@@ -51,7 +51,7 @@ public class GachaService {
                 .filter(c -> c.getRarity().equals(chosenRarity))
                 .toList();
 
-        Card pulledCard = cardRepository.findRandomCardByRarityName("RARE");
+        Card pulledCard = cardRepository.findRandomCardByRarityName(chosenRarity.getName());
 
 
         // Deduct points
