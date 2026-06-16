@@ -1,7 +1,7 @@
 package com.example.backend.controller;
 
 import com.example.backend.dto.CardResponse;
-import com.example.backend.model.Card;
+import com.example.backend.dto.InventoryItemResponse;
 import com.example.backend.service.GachaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,6 @@ public class CardController {
 
     private final GachaService gachaService;
 
-    // Temporary mock data (shared)
     private final List<CardResponse> cards = List.of(
             new CardResponse(1L, "Fire Dragon"),
             new CardResponse(2L, "Water Mage"),
@@ -31,18 +30,23 @@ public class CardController {
     }
 
     @GetMapping("/inventory")
-    public ResponseEntity<List<CardResponse>> getInventory(Principal principal) {
+    public ResponseEntity<List<InventoryItemResponse>> getInventory(Principal principal) {
         String username = principal != null ? principal.getName() : "testuser";
 
-        List<CardResponse> inventory = gachaService.getInventory(username)
+        List<InventoryItemResponse> inventory = gachaService.getInventory(username)
                 .stream()
-                .map(this::toCardResponse)
+                .map(InventoryItemResponse::from)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(inventory);
     }
 
-    private CardResponse toCardResponse(Card card) {
-        return new CardResponse(card.getId(), card.getName());
+    @PatchMapping("/inventory/{userCardId}/seen")
+    public ResponseEntity<Void> markAsSeen(@PathVariable Long userCardId, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        gachaService.markAsSeen(userCardId, principal.getName());
+        return ResponseEntity.noContent().build();
     }
 }

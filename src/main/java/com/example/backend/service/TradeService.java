@@ -2,10 +2,12 @@ package com.example.backend.service;
 
 import com.example.backend.dto.CardTradeRequest;
 import com.example.backend.entity.User;
+import com.example.backend.entity.UserCard;
 import com.example.backend.model.Card;
 import com.example.backend.model.TradeRequest;
 import com.example.backend.repository.CardRepository;
 import com.example.backend.repository.TradeRequestRepository;
+import com.example.backend.repository.UserCardRepository;
 import com.example.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,11 +21,9 @@ public class TradeService {
 
     private final UserRepository userRepository;
     private final CardRepository cardRepository;
+    private final UserCardRepository userCardRepository;
     private final TradeRequestRepository tradeRequestRepository;
 
-    /**
-     * Propose a trade request
-     */
     @Transactional
     public TradeRequest proposeTrade(String username, CardTradeRequest request) {
         User fromUser = userRepository.findByUsername(username)
@@ -38,13 +38,11 @@ public class TradeService {
         Card requestedCard = cardRepository.findById(request.getRequestedCardId())
                 .orElseThrow(() -> new RuntimeException("Requested card not found: " + request.getRequestedCardId()));
 
-        if (!fromUser.getCards().contains(offeredCard)) {
-            throw new RuntimeException("You do not own the offered card");
-        }
+        userCardRepository.findFirstByUserIdAndCardId(fromUser.getId(), offeredCard.getId())
+                .orElseThrow(() -> new RuntimeException("You do not own the offered card"));
 
-        if (!toUser.getCards().contains(requestedCard)) {
-            throw new RuntimeException("Target user does not own the requested card");
-        }
+        userCardRepository.findFirstByUserIdAndCardId(toUser.getId(), requestedCard.getId())
+                .orElseThrow(() -> new RuntimeException("Target user does not own the requested card"));
 
         TradeRequest tradeRequest = new TradeRequest();
         tradeRequest.setFromUser(fromUser);
@@ -56,18 +54,12 @@ public class TradeService {
         return tradeRequestRepository.save(tradeRequest);
     }
 
-    /**
-     * List all pending trade requests for a user
-     */
     public List<TradeRequest> getPendingTrades(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
         return tradeRequestRepository.findByToUserAndStatus(user, "PENDING");
     }
 
-    /**
-     * Accept a pending trade request
-     */
     @Transactional
     public String acceptTrade(String username, Long tradeId) {
         TradeRequest trade = tradeRequestRepository.findById(tradeId)
@@ -86,25 +78,17 @@ public class TradeService {
         Card offeredCard = trade.getOfferedCard();
         Card requestedCard = trade.getRequestedCard();
 
-        // Validate ownership again
-        if (!fromUser.getCards().contains(offeredCard)) {
-            throw new RuntimeException("Sender no longer owns offered card");
-        }
-        if (!toUser.getCards().contains(requestedCard)) {
-            throw new RuntimeException("You no longer own requested card");
-        }
+        UserCard fromOwnership = userCardRepository.findFirstByUserIdAndCardId(fromUser.getId(), offeredCard.getId())
+                .orElseThrow(() -> new RuntimeException("Sender no longer owns offered card"));
+        UserCard toOwnership = userCardRepository.findFirstByUserIdAndCardId(toUser.getId(), requestedCard.getId())
+                .orElseThrow(() -> new RuntimeException("You no longer own the requested card"));
 
-        // Swap the cards
-        fromUser.getCards().remove(offeredCard);
-        toUser.getCards().remove(requestedCard);
+        // Swap: reassign ownership
+        fromOwnership.setUser(toUser);
+        toOwnership.setUser(fromUser);
+        userCardRepository.save(fromOwnership);
+        userCardRepository.save(toOwnership);
 
-        fromUser.getCards().add(requestedCard);
-        toUser.getCards().add(offeredCard);
-
-        userRepository.save(fromUser);
-        userRepository.save(toUser);
-
-        // Mark trade as accepted
         trade.setStatus("ACCEPTED");
         tradeRequestRepository.save(trade);
 

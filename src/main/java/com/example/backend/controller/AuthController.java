@@ -83,7 +83,8 @@ public class AuthController {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setEmail(request.getEmail()); // remove if your User has no email
+        user.setEmail(request.getEmail());
+        user.setRole("ROLE_USER");
         userRepository.save(user);
 
         return ResponseEntity.ok(new LoginResponse("", "Bearer", request.getUsername(), "Inscription réussie"));

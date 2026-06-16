@@ -282,7 +282,24 @@ button[type="submit"]:disabled { cursor: not-allowed; filter: brightness(.6); }
 
 .card:hover { transform: translateY(-2px); }
 
+.card-name-row { display: flex; align-items: center; gap: .45rem; }
 .card-name   { font-size: .92rem; font-weight: 600; }
+
+.new-badge {
+  background: var(--accent);
+  border-radius: 4px;
+  color: #fff;
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: .1rem .45rem;
+  text-transform: uppercase;
+}
+
+.card-id {
+  color: var(--text-muted);
+  font-size: .7rem;
+}
 
 .card-rarity {
   font-size: .7rem;
@@ -327,6 +344,32 @@ button[type="submit"]:disabled { cursor: not-allowed; filter: brightness(.6); }
   padding: 2.5rem 1rem;
   text-align: center;
 }
+
+/* ── Catalog ─────────────────────────────────────────────────────── */
+.catalog-list {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  margin: 0 auto;
+  max-width: 600px;
+  padding: 1.4rem;
+}
+
+.catalog-item {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  gap: 1rem;
+  padding: .75rem 1rem;
+  transition: border-color .15s;
+}
+
+.catalog-item:hover { border-color: var(--accent); }
+
+.catalog-id   { color: var(--text-muted); font-size: .8rem; min-width: 2.5rem; }
+.catalog-name { font-weight: 600; }
 
 /* ── Trades ──────────────────────────────────────────────────────── */
 .trades-layout {

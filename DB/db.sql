@@ -14,6 +14,7 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     role VARCHAR(255) NOT NULL,
     enabled BOOLEAN NOT NULL DEFAULT true,
+    points INTEGER NOT NULL DEFAULT 1000,
     last_gacha TIMESTAMP
 );
 
@@ -70,12 +71,13 @@ VALUES
   ('Archmage', 5, 450, 250, 'https://via.placeholder.com/150', 'Maître suprême de la magie'),
   ('Titan', 5, 500, 400, 'https://via.placeholder.com/150', 'Une force de la nature');
 
--- User <-> Card pivot table
+-- User <-> Card ownership table (one row per pull, allows duplicates)
 CREATE TABLE user_cards (
+    id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
     card_id BIGINT NOT NULL,
     obtained_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    PRIMARY KEY (user_id, card_id),
+    is_new BOOLEAN NOT NULL DEFAULT TRUE,
     CONSTRAINT fk_user_cards_user
         FOREIGN KEY (user_id)
         REFERENCES users(id)

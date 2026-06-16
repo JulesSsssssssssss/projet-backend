@@ -2,9 +2,9 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.GachaResponse;
 import com.example.backend.model.Card;
-import com.example.backend.entity.User;
 import com.example.backend.service.GachaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,14 +20,18 @@ public class GachaController {
     @PostMapping
     public ResponseEntity<GachaResponse> pullCard(Principal principal) {
         try {
-            String username = principal != null ? principal.getName() : "testuser";
+            if (principal == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
 
-            User user = gachaService.getOrCreateUser(username);
-            Card pulledCard = gachaService.pullCard(username);
+            String username = principal.getName();
+
+            GachaService.PullResult result = gachaService.pullCard(username);
+            Card pulledCard = result.card();
 
             GachaResponse response = new GachaResponse(
                     pulledCard,
-                    user.getPoints(),
+                    result.remainingPoints(),
                     "You pulled a " + pulledCard.getRarity().getName() + " card!"
             );
 
@@ -42,8 +46,11 @@ public class GachaController {
 
     @GetMapping("/points")
     public ResponseEntity<Integer> getUserPoints(Principal principal) {
-        String username = principal != null ? principal.getName() : "testuser";
-        User user = gachaService.getOrCreateUser(username);
-        return ResponseEntity.ok(user.getPoints());
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String username = principal.getName();
+        return ResponseEntity.ok(gachaService.getUserPoints(username));
     }
 }

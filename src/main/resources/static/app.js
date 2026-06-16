@@ -3,7 +3,7 @@
 // ── Constants ──────────────────────────────────────────────────────
 const TOKEN_KEY = 'cg_token';
 const USER_KEY  = 'cg_user';
-const VIEWS     = ['auth', 'dashboard', 'inventory', 'trades'];
+const VIEWS     = ['auth', 'dashboard', 'inventory', 'trades', 'catalog'];
 
 // ── State ──────────────────────────────────────────────────────────
 let currentToken    = null;
@@ -216,6 +216,7 @@ async function doRegister(e) {
 }
 
 function doLogout() {
+  api('/auth/logout', { method: 'POST' }); // fire-and-forget, JWT is stateless server-side
   clearSession();
   setText('dash-username', '');
   setText('dash-points', '0');
@@ -279,6 +280,35 @@ async function openInventory() {
   }
 
   res.data.forEach(card => grid.appendChild(buildCardEl(card)));
+  markAllNewAsSeen(res.data);
+}
+
+async function markAllNewAsSeen(items) {
+  const newItems = items.filter(c => c.isNew && c.userCardId);
+  await Promise.all(
+    newItems.map(c => api('/cards/inventory/' + c.userCardId + '/seen', { method: 'PATCH' }))
+  );
+}
+
+// ── Catalog ────────────────────────────────────────────────────────
+async function openCatalog() {
+  showView('catalog');
+  const container = el('catalog-list');
+  clear('catalog-list');
+
+  const res = await api('/cards');
+
+  if (!res?.ok || !Array.isArray(res.data) || res.data.length === 0) {
+    container.appendChild(createEl('p', { class: 'empty-state' }, 'Aucune carte disponible.'));
+    return;
+  }
+
+  res.data.forEach(card => {
+    const item = createEl('div', { class: 'catalog-item' });
+    item.appendChild(createEl('span', { class: 'catalog-id' }, '#' + card.id));
+    item.appendChild(createEl('span', { class: 'catalog-name' }, card.name ?? '?'));
+    container.appendChild(item);
+  });
 }
 
 // ── Trades ─────────────────────────────────────────────────────────
@@ -354,13 +384,25 @@ async function doAcceptTrade(tradeId) {
 
 // ── Card builder ───────────────────────────────────────────────────
 // Uses only createElement + textContent: no innerHTML, no XSS risk.
+// card.rarity can be a plain string (inventory DTO) or an object {name} (gacha response).
 function buildCardEl(card) {
   if (!card) return createEl('p', { class: 'empty-state' }, 'Carte inconnue.');
 
-  const rarity = card.rarity?.name ?? 'COMMON';
+  const rarity = (typeof card.rarity === 'string' ? card.rarity : card.rarity?.name) ?? 'COMMON';
   const div    = createEl('div', { class: 'card', 'data-rarity': rarity });
 
-  div.appendChild(createEl('h3', { class: 'card-name' },   card.name   ?? '?'));
+  const nameRow = createEl('div', { class: 'card-name-row' });
+  nameRow.appendChild(createEl('h3', { class: 'card-name' }, card.name ?? '?'));
+  if (card.isNew) {
+    nameRow.appendChild(createEl('span', { class: 'new-badge' }, 'NEW'));
+  }
+  div.appendChild(nameRow);
+
+  const cardId = card.cardId ?? card.id;
+  if (cardId != null) {
+    div.appendChild(createEl('span', { class: 'card-id' }, '#' + cardId));
+  }
+
   div.appendChild(createEl('span', { class: 'card-rarity' }, rarity));
 
   if (card.description) {
@@ -428,6 +470,10 @@ function wireEvents() {
   // Trades
   el('btn-trades-back').addEventListener('click', openDashboard);
   el('form-trade').addEventListener('submit', doProposeTrade);
+
+  // Catalog
+  el('btn-to-catalog').addEventListener('click', openCatalog);
+  el('btn-catalog-back').addEventListener('click', openDashboard);
 }
 
 // ── Init ───────────────────────────────────────────────────────────

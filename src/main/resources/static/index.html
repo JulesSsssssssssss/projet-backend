@@ -57,6 +57,7 @@
       <nav class="dash-nav" aria-label="Navigation principale">
         <button id="btn-to-inventory">Mon inventaire</button>
         <button id="btn-to-trades">Échanges</button>
+        <button id="btn-to-catalog">Catalogue</button>
       </nav>
     </main>
   </div>
@@ -98,6 +99,15 @@
         <p id="trade-msg" class="msg" role="status" aria-live="polite"></p>
       </section>
     </div>
+  </div>
+
+  <!-- ── Vue : Catalogue ── -->
+  <div id="view-catalog" class="view">
+    <header class="app-header">
+      <button id="btn-catalog-back" class="btn-sm">&#8592; Retour</button>
+      <h2>Catalogue des cartes</h2>
+    </header>
+    <div id="catalog-list" class="catalog-list" aria-label="Toutes les cartes disponibles"></div>
   </div>
 
   <script src="/app.js"></script>

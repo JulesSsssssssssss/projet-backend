@@ -1,12 +1,11 @@
 package com.example.backend.entity;
 
-import com.example.backend.model.Card;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -39,22 +38,13 @@ public class User {
      */
     private LocalDateTime lastGacha;
 
-    /**
-     * Cards owned by the user.
-     * Many-to-Many relationship via 'user_cards' pivot table.
-     */
-    @ManyToMany(fetch = jakarta.persistence.FetchType.EAGER)
-    @JoinTable(
-        name = "user_cards",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "card_id")
-    )
-    private Set<Card> cards = new HashSet<>();
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserCard> userCards = new ArrayList<>();
 
     /**
-     * Points for gacha pulls (can later be persisted if needed)
+        * Points for gacha pulls.
      */
-    @Transient
+        @Column(nullable = false)
     private Integer points = 1000;
 
     /**

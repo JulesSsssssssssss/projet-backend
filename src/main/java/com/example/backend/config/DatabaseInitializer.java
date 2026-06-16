@@ -1,10 +1,12 @@
 package com.example.backend.config;
 
 import com.example.backend.entity.User;
+import com.example.backend.entity.UserCard;
 import com.example.backend.model.Card;
 import com.example.backend.model.Rarity;
 import com.example.backend.repository.CardRepository;
 import com.example.backend.repository.RarityRepository;
+import com.example.backend.repository.UserCardRepository;
 import com.example.backend.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -42,6 +44,11 @@ public class DatabaseInitializer {
             changed = true;
         }
 
+        if (user.getPoints() == null) {
+            user.setPoints(1000);
+            changed = true;
+        }
+
         if (user.getId() == null || changed) {
             user = userRepository.save(user);
         }
@@ -53,7 +60,8 @@ public class DatabaseInitializer {
     public CommandLineRunner initDatabase(UserRepository userRepository,
                                           PasswordEncoder passwordEncoder,
                                           RarityRepository rarityRepository,
-                                          CardRepository cardRepository) {
+                                          CardRepository cardRepository,
+                                          UserCardRepository userCardRepository) {
         return args -> {
 
             // ----- USERS -----
@@ -101,11 +109,10 @@ public class DatabaseInitializer {
             }
 
             // ----- ASSIGN SOME CARDS TO TEST USER -----
-            if (user.getCards().isEmpty()) {
+            if (userCardRepository.findByUserId(user.getId()).isEmpty()) {
                 List<Card> initialCards = cardRepository.findAll();
-                user.getCards().add(initialCards.get(0));
-                user.getCards().add(initialCards.get(1));
-                userRepository.save(user);
+                userCardRepository.save(new UserCard(user, initialCards.get(0)));
+                userCardRepository.save(new UserCard(user, initialCards.get(1)));
             }
         };
     }
