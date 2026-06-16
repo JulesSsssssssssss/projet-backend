@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/api/trades")
@@ -25,6 +26,9 @@ public class TradeController {
             Principal principal,
             @RequestBody @Valid CardTradeRequest request
     ) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).<TradeResponse>build();
+        }
         String username = principal.getName();
         TradeRequest trade = tradeService.proposeTrade(username, request);
         return ResponseEntity.ok(TradeResponse.from(trade));
@@ -33,6 +37,9 @@ public class TradeController {
     // Get all pending trades for the authenticated user
     @GetMapping("/pending")
     public ResponseEntity<List<TradeResponse>> getPendingTrades(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).<List<TradeResponse>>build();
+        }
         String username = principal.getName();
         List<TradeResponse> pending = tradeService.getPendingTrades(username)
                 .stream().map(TradeResponse::from).toList();
@@ -45,6 +52,9 @@ public class TradeController {
             Principal principal,
             @PathVariable Long tradeId
     ) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).<String>build();
+        }
         String username = principal.getName();
         String result = tradeService.acceptTrade(username, tradeId);
         return ResponseEntity.ok(result);
