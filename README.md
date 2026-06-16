@@ -1,6 +1,11 @@
-# Projet Backend — Card Game
+# Projet Backend — Jeu de Cartes
 
 Application Spring Boot 3.4 · Java 21 · PostgreSQL · JWT
+
+Groupe de travail :
+Jule Ruberti
+Louka Lemonnier
+Lukas Gaboriau
 
 Un backend de jeu de cartes avec système gacha, inventaire et échanges entre joueurs, accompagné d'un mini front-end vanilla JS servi directement par Spring Boot.
 
@@ -16,7 +21,15 @@ Un backend de jeu de cartes avec système gacha, inventaire et échanges entre j
 
 ---
 
-## Installation
+## Installation via docker
+
+**Linux (Ubuntu/Debian)**
+```bash
+docker compose up -d --build
+```
+L'application démarre sur **http://localhost:8080**
+
+## Installation directe
 
 ### 1. Java
 
