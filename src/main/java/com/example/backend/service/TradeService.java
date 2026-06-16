@@ -83,9 +83,13 @@ public class TradeService {
         UserCard toOwnership = userCardRepository.findFirstByUserIdAndCardId(toUser.getId(), requestedCard.getId())
                 .orElseThrow(() -> new RuntimeException("You no longer own the requested card"));
 
-        // Swap: reassign ownership
+        // Swap: only update the owning side (UserCard.user has @JoinColumn).
+        // Do NOT touch User.userCards (inverse side) — orphanRemoval would delete the entity.
         fromOwnership.setUser(toUser);
+        fromOwnership.setNew(true);
         toOwnership.setUser(fromUser);
+        toOwnership.setNew(true);
+
         userCardRepository.save(fromOwnership);
         userCardRepository.save(toOwnership);
 

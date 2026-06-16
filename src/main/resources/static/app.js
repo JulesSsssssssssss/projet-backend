@@ -315,7 +315,28 @@ async function openCatalog() {
 async function openTrades() {
   showView('trades');
   clear('trade-msg');
-  await loadPendingTrades();
+  await Promise.all([loadPendingTrades(), loadOfferedCardSelect()]);
+}
+
+async function loadOfferedCardSelect() {
+  const select = el('trade-offered');
+  if (!select) return;
+
+  const res = await api('/cards/inventory');
+  select.textContent = '';
+
+  const placeholder = createEl('option', { value: '' }, '— Choisir une carte —');
+  select.appendChild(placeholder);
+
+  if (!res?.ok || !Array.isArray(res.data) || res.data.length === 0) {
+    placeholder.textContent = 'Aucune carte dans votre inventaire';
+    return;
+  }
+
+  res.data.forEach(card => {
+    const label = '#' + card.cardId + ' – ' + (card.name ?? '?') + ' (' + (card.rarity ?? '') + ')';
+    select.appendChild(createEl('option', { value: String(card.cardId) }, label));
+  });
 }
 
 async function loadPendingTrades() {
@@ -340,7 +361,7 @@ async function doProposeTrade(e) {
   const target      = el('trade-target').value.trim();
   const requestedId = el('trade-requested').value;
 
-  if (!isValidId(offeredId))    { showMsg('trade-msg', 'ID carte offerte invalide.',    'error'); return; }
+  if (!isValidId(offeredId))    { showMsg('trade-msg', 'Veuillez sélectionner une carte à offrir.', 'error'); return; }
   if (!isValidUsername(target)) { showMsg('trade-msg', 'Nom d\'utilisateur invalide.',  'error'); return; }
   if (!isValidId(requestedId))  { showMsg('trade-msg', 'ID carte demandée invalide.',   'error'); return; }
 
@@ -367,19 +388,27 @@ async function doProposeTrade(e) {
 }
 
 async function doAcceptTrade(tradeId) {
-  // Validate the ID from the API response before using it in the URL
   if (!isValidId(tradeId)) return;
 
-  // encodeURIComponent ensures no path injection even if ID were non-numeric
   const res = await api('/trades/accept/' + encodeURIComponent(tradeId), { method: 'POST' });
 
   if (!res || !res.ok) {
-    showMsg('trade-msg', typeof res?.data === 'string' ? res.data : 'Erreur lors de l\'acceptation.', 'error');
+    const msg = res?.data?.message ?? (typeof res?.data === 'string' ? res.data : 'Erreur lors de l\'acceptation.');
+    showMsg('trade-msg', msg, 'error');
     return;
   }
 
-  showMsg('trade-msg', 'Échange accepté !', 'success');
-  await loadPendingTrades();
+  await Promise.all([loadPendingTrades(), loadOfferedCardSelect()]);
+
+  const msgEl = el('trade-msg');
+  msgEl.textContent = '';
+  msgEl.className = 'msg success';
+
+  const text = document.createTextNode('Échange accepté ! ');
+  const link = createEl('button', { class: 'btn-link' }, 'Voir mon inventaire →');
+  link.addEventListener('click', openInventory);
+  msgEl.appendChild(text);
+  msgEl.appendChild(link);
 }
 
 // ── Card builder ───────────────────────────────────────────────────

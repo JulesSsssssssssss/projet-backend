@@ -88,11 +88,13 @@
       <section class="trades-section">
         <h3>Proposer un échange</h3>
         <form id="form-trade" novalidate>
-          <label for="trade-offered">ID carte offerte</label>
-          <input id="trade-offered"   type="number" min="1" placeholder="ex: 3">
+          <label for="trade-offered">Carte à offrir</label>
+          <select id="trade-offered">
+            <option value="">Chargement de votre inventaire…</option>
+          </select>
           <label for="trade-target">Nom d'utilisateur cible</label>
           <input id="trade-target"    type="text"   placeholder="ex: alice" maxlength="20">
-          <label for="trade-requested">ID carte demandée</label>
+          <label for="trade-requested">ID carte demandée (visible dans l'inventaire de la cible)</label>
           <input id="trade-requested" type="number" min="1" placeholder="ex: 7">
           <button type="submit">Proposer</button>
         </form>
